@@ -7,7 +7,7 @@ int main(int argc, char *argv[]){
 
   char buffer[2048];
   char newline[2] = "\n";
-
+  
   if (argc == 1){
     while (1){
       int size = read(0,buffer,sizeof(buffer));

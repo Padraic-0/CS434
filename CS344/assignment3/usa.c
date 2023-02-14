@@ -9,8 +9,7 @@ int main(int argc, char *argv[]){
   while (1){
     char s[2048];
     char *words[128];
-
-    printf("Program to run: ");
+    printf("USA ");
 
     fflush(stdout);
 

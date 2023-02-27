@@ -1,3 +1,4 @@
+//created by: Padraic Bergin
 #include <unistd.h>
 #include <sys/mman.h>
 #include <stdio.h>
@@ -9,6 +10,8 @@
 
 #define PTR_OFFSET(p, offset) ((void*)((char *)(p) + (offset)))
 
+#define REQUIRED_SPACE(padded_request_space, padded_struct_block_size) (padded_request_space + padded_struct_block_size + ALIGNMENT)
+
 //global head
 struct block *head = NULL;
 
@@ -17,6 +20,23 @@ struct block {
     int size;     // Bytes
     int in_use;   // Boolean
 };
+
+void split_space(struct block *node, int size_of_block){
+
+  struct block *new_block = PTR_OFFSET(node, size_of_block);
+  new_block->next = node->next;
+  node->next = new_block;
+  int total_size = node->size;
+  node->size = size_of_block;
+  new_block->size = total_size - size_of_block - sizeof(struct block);
+  new_block->in_use = 0;
+}
+
+void myfree(struct block *node){
+
+  node = PTR_OFFSET(node, -(sizeof(struct block)));
+  node->in_use = 0;
+}
 
 void* myalloc(int size){
   if (head == NULL){
@@ -30,11 +50,15 @@ void* myalloc(int size){
   int actual_size = PADDED_SIZE(size);
   int padded_block_size;
   struct block *n = head;
+  padded_block_size = PADDED_SIZE(sizeof(struct block));
 
   while(n != NULL){
     if(n->size >= size && n->in_use == 0){
+      if (REQUIRED_SPACE(actual_size, padded_block_size) <= n->size){
+        split_space(n, actual_size);
+      }
       n->in_use = 1;
-      padded_block_size = PADDED_SIZE(sizeof(struct block));
+
       return PTR_OFFSET(n, padded_block_size);
     }
     n = n->next;
@@ -67,12 +91,14 @@ void print_data(void)
 }
 
 int main(void){
+
   void *p;
 
-  print_data();
-  p = myalloc(16);
-  print_data();
-  p = myalloc(16);
-  printf("%p\n", p);
+    myalloc(10);     print_data();
+    p = myalloc(20); print_data();
+    myalloc(30);     print_data();
+    myfree(p);       print_data();
+    myalloc(40);     print_data();
+    myalloc(10);     print_data();
   return 0;
 }

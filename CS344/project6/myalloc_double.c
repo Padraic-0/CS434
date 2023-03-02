@@ -30,7 +30,7 @@ void split_space(struct block *node, int size_of_block){
   int total_size = node->size;
   
   node->size = size_of_block;
-  new_block->size = total_size - size_of_block;
+  new_block->size = total_size - size_of_block - PADDED_SIZE(sizeof(struct block)) ;
   new_block->in_use = 0;
   new_block->prev = node;
   
@@ -42,13 +42,18 @@ void myfree(struct block *node){
   node->in_use = 0;
   if (node->prev != NULL){
     if (node->prev->in_use == 0){
-      node->prev->size = node->size + size_of_block;
+      node->prev->size += node->size + size_of_block;
+      node->prev->next = node->next;
       node = node->prev;
     }
   }
   if (node->next != NULL){
     if (node->next->in_use == 0){
-      node->size = node->next->size + size_of_block;
+      node->size += node->next->size + size_of_block;
+      if(node->next->next != NULL){
+        node->next->next->prev = node;
+      }
+      node->next = node->next->next;
     }
   }
 }

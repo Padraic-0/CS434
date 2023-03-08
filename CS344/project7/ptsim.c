@@ -51,8 +51,6 @@ int find_free_page(){
         index ++;
     }
     return -1;
-    
-    
 }
 
 void set_process_page_table(int proc_num, int process_page_table_index){
@@ -65,8 +63,6 @@ void fill_process_page_table(int proc_num, int process_page_used, int page_index
     int process_page_table_page = mem[process_page_table];
     int address_of_page_from_process_page_table = get_address(process_page_table_page, page_index);
     mem[address_of_page_from_process_page_table] = process_page_used;
-    
-
 }
 
 //
@@ -76,7 +72,6 @@ void fill_process_page_table(int proc_num, int process_page_used, int page_index
 //
 void new_process(int proc_num, int page_count)
 {
-    
     int process_page_table_index = find_free_page();
     if (process_page_table_index == -1){
         printf("OOM: proc %d: page table\n", proc_num);
@@ -92,7 +87,6 @@ void new_process(int proc_num, int page_count)
         }
         fill_process_page_table(proc_num, process_page_used, i);
     }
-
 }
 
 //
@@ -165,7 +159,5 @@ int main(int argc, char *argv[])
             int page_count = atoi(argv[++i]);
             new_process(proc_num, page_count);
         }
-
-        // TODO: more command line arguments
     }
 }
